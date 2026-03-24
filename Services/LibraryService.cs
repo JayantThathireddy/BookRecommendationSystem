@@ -72,23 +72,23 @@ public class LibraryService : ILibraryService
         _ratingRepository.AddRating(rating);
     }
 
+    public int GetRating(string bookISBN)
+    {
+        if (!IsLoggedIn()) return 0;
+        return _ratingRepository.GetRating(_currentMember!.Account, bookISBN);
+    }
+
     public List<(Book, int)> GetMyRatings()
     {
         if (!IsLoggedIn()) return new List<(Book, int)>();
 
-        var ratings = _ratingRepository.GetRatingsByMember(_currentMember!.Account);
+        var allBooks = _bookRepository.GetAllBooks();
         var result = new List<(Book, int)>();
 
-        foreach (var rating in ratings)
+        foreach (var book in allBooks)
         {
-            if (rating.Score != 0)
-            {
-                var book = _bookRepository.GetBookByISBN(rating.BookISBN);
-                if (book != null)
-                {
-                    result.Add((book, rating.Score));
-                }
-            }
+            int score = _ratingRepository.GetRating(_currentMember!.Account, book.ISBN);
+            result.Add((book, score));
         }
 
         return result;
@@ -154,5 +154,64 @@ public class LibraryService : ILibraryService
     public List<Book> GetAllBooks()
     {
         return _bookRepository.GetAllBooks();
+    }
+
+    public int GetMemberCount()
+    {
+        return _memberRepository.GetAllMembers().Count;
+    }
+
+    public (Member? similarMember, List<Book> reallyLiked, List<Book> liked) GetDetailedRecommendations()
+    {
+        if (!IsLoggedIn()) return (null, new List<Book>(), new List<Book>());
+
+        var allMembers = _memberRepository.GetAllMembers();
+        var allBooks = _bookRepository.GetAllBooks();
+        var currentMemberAccount = _currentMember!.Account;
+
+        var similarities = new Dictionary<string, int>();
+
+        foreach (var otherMember in allMembers)
+        {
+            if (otherMember.Account == currentMemberAccount) continue;
+
+            int dotProduct = 0;
+            foreach (var book in allBooks)
+            {
+                int myRating = _ratingRepository.GetRating(currentMemberAccount, book.ISBN);
+                int theirRating = _ratingRepository.GetRating(otherMember.Account, book.ISBN);
+                dotProduct += myRating * theirRating;
+            }
+
+            similarities[otherMember.Account] = dotProduct;
+        }
+
+        var mostSimilarMemberKvp = similarities.OrderByDescending(kvp => kvp.Value).FirstOrDefault();
+        if (mostSimilarMemberKvp.Key == null) return (null, new List<Book>(), new List<Book>());
+
+        Member? similarMember = _memberRepository.GetMemberByAccount(mostSimilarMemberKvp.Key);
+        
+        var theirRatings = _ratingRepository.GetRatingsByMember(mostSimilarMemberKvp.Key);
+        
+        var reallyLiked = new List<Book>();
+        var liked = new List<Book>();
+
+        foreach (var rating in theirRatings.Where(r => r.Score >= 3).OrderByDescending(r => r.Score))
+        {
+            int myRating = _ratingRepository.GetRating(currentMemberAccount, rating.BookISBN);
+            if (myRating == 0) // I haven't read it
+            {
+                var book = _bookRepository.GetBookByISBN(rating.BookISBN);
+                if (book != null)
+                {
+                    if (rating.Score == 5)
+                        reallyLiked.Add(book);
+                    else if (rating.Score == 3)
+                        liked.Add(book);
+                }
+            }
+        }
+
+        return (similarMember, reallyLiked, liked);
     }
 }

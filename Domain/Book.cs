@@ -31,6 +31,6 @@ public class Book
 
     public override string ToString()
     {
-        return $"{Author}, {Title} ({Year})";
+        return $"{ISBN}, {Author}, {Title}, {Year}";
     }
 }

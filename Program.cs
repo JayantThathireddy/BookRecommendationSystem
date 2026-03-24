@@ -10,33 +10,22 @@ class Program
     {
         ILibraryService libraryService = new LibraryService();
 
-        Console.WriteLine("==============================================");
-        Console.WriteLine("   Welcome to Book Recommendation System");
-        Console.WriteLine("==============================================\n");
+        Console.WriteLine("Welcome to the Book Recommendation Program.\n");
 
-        Console.Write("Enter books file path (or press Enter for default 'Data\\books.txt'): ");
+        Console.Write("Enter books file: ");
         string booksFile = Console.ReadLine()?.Trim() ?? "";
-        if (string.IsNullOrEmpty(booksFile))
-        {
-            booksFile = "Data\\books.txt";
-        }
 
-        Console.Write("Enter ratings file path (or press Enter for default 'Data\\ratings.txt'): ");
+        Console.Write("Enter rating file: ");
         string ratingsFile = Console.ReadLine()?.Trim() ?? "";
-        if (string.IsNullOrEmpty(ratingsFile))
-        {
-            ratingsFile = "Data\\ratings.txt";
-        }
 
         try
         {
             libraryService.LoadData(booksFile, ratingsFile);
-            Console.WriteLine("\n✓ Data loaded successfully!\n");
+            Console.WriteLine($"\n# of books: {libraryService.GetAllBooks().Count}");
+            Console.WriteLine($"# of memberList: {libraryService.GetMemberCount()}\n");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"\n✗ Error loading data: {ex.Message}");
-            return;
         }
 
         bool running = true;
@@ -51,8 +40,9 @@ class Program
                 ShowLoggedOutMenu(libraryService);
             }
 
-            Console.Write("\nEnter your choice: ");
+            Console.Write("\nEnter a menu option: ");
             string choice = Console.ReadLine()?.Trim() ?? "";
+            Console.WriteLine();
 
             try
             {
@@ -69,43 +59,32 @@ class Program
             {
                 Console.WriteLine($"\n✗ Error: {ex.Message}");
             }
-
-            if (running)
-            {
-                Console.WriteLine("\nPress any key to continue...");
-                Console.ReadKey();
-            }
         }
 
-        Console.WriteLine("\nThank you for using the Book Recommendation System!");
+        Console.WriteLine("\nThank you for using the Book Recommendation Program!");
     }
 
     static void ShowLoggedOutMenu(ILibraryService service)
     {
-        Console.WriteLine("\n==============================================");
-        Console.WriteLine("   Menu (Not Logged In)");
-        Console.WriteLine("==============================================");
-        Console.WriteLine("1. Login");
-        Console.WriteLine("2. Add New Member");
-        Console.WriteLine("3. Add New Book");
-        Console.WriteLine("4. Exit");
-        Console.WriteLine("==============================================");
+        Console.WriteLine("\n************** MENU **************");
+        Console.WriteLine("* 1. Add a new member            *");
+        Console.WriteLine("* 2. Add a new book              *");
+        Console.WriteLine("* 3. Login                       *");
+        Console.WriteLine("* 4. Quit                        *");
+        Console.WriteLine("**********************************");
     }
 
     static void ShowLoggedInMenu(ILibraryService service)
     {
         var currentMember = service.GetCurrentMember();
-        Console.WriteLine("\n==============================================");
-        Console.WriteLine($"   Menu (Logged in as: {currentMember?.Name})");
-        Console.WriteLine("==============================================");
-        Console.WriteLine("1. Logout");
-        Console.WriteLine("2. Add New Member");
-        Console.WriteLine("3. Add New Book");
-        Console.WriteLine("4. Rate a Book");
-        Console.WriteLine("5. View My Ratings");
-        Console.WriteLine("6. See Recommended Books");
-        Console.WriteLine("7. Exit");
-        Console.WriteLine("==============================================");
+        Console.WriteLine("\n************** MENU **************");
+        Console.WriteLine("* 1. Add a new member            *");
+        Console.WriteLine("* 2. Add a new book              *");
+        Console.WriteLine("* 3. Rate book                   *");
+        Console.WriteLine("* 4. View ratings                *");
+        Console.WriteLine("* 5. See recommendations         *");
+        Console.WriteLine("* 6. Logout                      *");
+        Console.WriteLine("**********************************");
     }
 
     static bool HandleLoggedOutChoice(string choice, ILibraryService service)
@@ -113,19 +92,16 @@ class Program
         switch (choice)
         {
             case "1":
-                LoginMember(service);
-                break;
-            case "2":
                 AddNewMember(service);
                 break;
-            case "3":
+            case "2":
                 AddNewBook(service);
+                break;
+            case "3":
+                LoginMember(service);
                 break;
             case "4":
                 return false;
-            default:
-                Console.WriteLine("\n✗ Invalid choice. Please try again.");
-                break;
         }
         return true;
     }
@@ -135,28 +111,22 @@ class Program
         switch (choice)
         {
             case "1":
-                service.Logout();
-                Console.WriteLine("\n✓ Logged out successfully!");
-                break;
-            case "2":
                 AddNewMember(service);
                 break;
-            case "3":
+            case "2":
                 AddNewBook(service);
                 break;
-            case "4":
+            case "3":
                 RateBook(service);
                 break;
-            case "5":
+            case "4":
                 ViewMyRatings(service);
                 break;
-            case "6":
+            case "5":
                 SeeRecommendations(service);
                 break;
-            case "7":
-                return false;
-            default:
-                Console.WriteLine("\n✗ Invalid choice. Please try again.");
+            case "6":
+                service.Logout();
                 break;
         }
         return true;
@@ -164,151 +134,119 @@ class Program
 
     static void LoginMember(ILibraryService service)
     {
-        Console.Write("\nEnter your Account ID: ");
+        Console.Write("Enter member account: ");
         string account = Console.ReadLine()?.Trim() ?? "";
-
-        if (string.IsNullOrEmpty(account))
-        {
-            Console.WriteLine("✗ Account ID cannot be empty.");
-            return;
-        }
 
         if (service.Login(account))
         {
-            Console.WriteLine($"\n✓ Welcome back, {service.GetCurrentMember()?.Name}!");
-        }
-        else
-        {
-            Console.WriteLine("\n✗ Member not found. Please check your Account ID or add yourself as a new member.");
+            Console.WriteLine($"{service.GetCurrentMember()?.Name}, you are logged in!");
         }
     }
 
     static void AddNewMember(ILibraryService service)
     {
-        Console.Write("\nEnter member name: ");
+        Console.Write("Enter the name of the new member: ");
         string name = Console.ReadLine()?.Trim() ?? "";
-
-        if (string.IsNullOrEmpty(name))
-        {
-            Console.WriteLine("✗ Name cannot be empty.");
-            return;
-        }
 
         var member = service.AddMember(name);
         if (member != null)
         {
-            Console.WriteLine($"\n✓ Member added successfully!");
-            Console.WriteLine($"   Name: {member.Name}");
-            Console.WriteLine($"   Account: {member.Account}");
-        }
-        else
-        {
-            Console.WriteLine("\n✗ Member with this name already exists.");
+            Console.WriteLine($"{member.Name} (account #: {member.Account}) was added.");
         }
     }
 
     static void AddNewBook(ILibraryService service)
     {
-        Console.Write("\nEnter book author: ");
+        Console.Write("Enter the author of the new book: ");
         string author = Console.ReadLine()?.Trim() ?? "";
 
-        Console.Write("Enter book title: ");
+        Console.Write("Enter the title of the new book: ");
         string title = Console.ReadLine()?.Trim() ?? "";
 
-        Console.Write("Enter publication year: ");
+        Console.Write("Enter the year (or range of years) of the new book: ");
         string year = Console.ReadLine()?.Trim() ?? "";
-
-        if (string.IsNullOrEmpty(author) || string.IsNullOrEmpty(title) || string.IsNullOrEmpty(year))
-        {
-            Console.WriteLine("\n✗ All fields are required.");
-            return;
-        }
 
         var book = service.AddBook(author, title, year);
         if (book != null)
         {
-            Console.WriteLine($"\n✓ Book added successfully!");
-            Console.WriteLine($"   ISBN: {book.ISBN}");
-            Console.WriteLine($"   {book}");
+            Console.WriteLine($"{book} was added.");
         }
     }
 
     static void RateBook(ILibraryService service)
     {
-        var books = service.GetAllBooks();
-
-        Console.WriteLine("\n--- Available Books ---");
-        for (int i = 0; i < books.Count; i++)
-        {
-            Console.WriteLine($"{i + 1}. {books[i]}");
-        }
-
-        Console.Write("\nEnter book number to rate: ");
+        Console.Write("Enter the ISBN for the book you'd like to rate: ");
         string input = Console.ReadLine()?.Trim() ?? "";
 
-        if (!int.TryParse(input, out int bookNumber) || bookNumber < 1 || bookNumber > books.Count)
-        {
-            Console.WriteLine("\n✗ Invalid book number.");
+        int currentRating = service.GetRating(input);
+        
+        var allBooks = service.GetAllBooks();
+        var selectedBook = allBooks.FirstOrDefault(b => b.ISBN == input);
+
+        if (selectedBook == null) {
             return;
         }
 
-        var selectedBook = books[bookNumber - 1];
+        if (currentRating != 0)
+        {
+            Console.WriteLine($"Your current rating for {selectedBook} => rating: {currentRating}");
+            Console.Write("Would you like to re-rate this book (y/n)? ");
+            string rerate = Console.ReadLine()?.Trim().ToLower() ?? "";
+            if (rerate != "y" && rerate != "yes")
+            {
+                return;
+            }
+        }
 
-        Console.WriteLine("\nRating Scale:");
-        Console.WriteLine("-5 :  Hated it!");
-        Console.WriteLine("-3 :  Didn't like it");
-        Console.WriteLine(" 0 :  Haven't read it");
-        Console.WriteLine(" 1 :  Ok – neither hot nor cold");
-        Console.WriteLine(" 3 :  Liked it!");
-        Console.WriteLine(" 5 :  Really liked it!");
-
-        Console.Write("\nEnter your rating (-5, -3, 0, 1, 3, 5): ");
+        Console.Write("Enter your rating: ");
         string ratingInput = Console.ReadLine()?.Trim() ?? "";
 
-        if (!int.TryParse(ratingInput, out int rating) ||
-            (rating != -5 && rating != -3 && rating != 0 && rating != 1 && rating != 3 && rating != 5))
+        if (int.TryParse(ratingInput, out int rating))
         {
-            Console.WriteLine("\n✗ Invalid rating. Must be -5, -3, 0, 1, 3, or 5.");
-            return;
+            service.RateBook(input, rating);
+            Console.WriteLine($"Your new rating for {selectedBook} => rating: {rating}");
         }
-
-        service.RateBook(selectedBook.ISBN, rating);
-        Console.WriteLine($"\n✓ Your rating for '{selectedBook.Title}' has been saved!");
     }
 
     static void ViewMyRatings(ILibraryService service)
     {
+        var currentMember = service.GetCurrentMember();
+        Console.WriteLine($"{currentMember?.Name}'s ratings...");
+
         var ratings = service.GetMyRatings();
-
-        if (ratings.Count == 0)
-        {
-            Console.WriteLine("\nYou haven't rated any books yet.");
-            return;
-        }
-
-        Console.WriteLine("\n--- Your Ratings ---");
         foreach (var (book, score) in ratings)
         {
-            Console.WriteLine($"{book} - Rating: {score} ({Rating.GetRatingMeaning(score)})");
+            Console.WriteLine($"{book} => rating: {score}");
         }
-        Console.WriteLine($"\nTotal books rated: {ratings.Count}");
     }
 
     static void SeeRecommendations(ILibraryService service)
     {
-        var recommendations = service.GetRecommendedBooks(5);
-
-        if (recommendations.Count == 0)
-        {
-            Console.WriteLine("\nNo recommendations available at this time.");
-            Console.WriteLine("Try rating more books to get better recommendations!");
+        var (similarMember, reallyLiked, liked) = service.GetDetailedRecommendations();
+        
+        if (similarMember == null) {
+            Console.WriteLine("No similar members found.");
             return;
         }
 
-        Console.WriteLine("\n--- Recommended Books for You ---");
-        for (int i = 0; i < recommendations.Count; i++)
+        Console.WriteLine($"\nYou have similar taste in books as {similarMember.Name}!\n");
+        
+        if (reallyLiked.Count > 0)
         {
-            Console.WriteLine($"{i + 1}. {recommendations[i]}");
+            Console.WriteLine("Here are the books they really liked:");
+            foreach (var b in reallyLiked)
+            {
+                Console.WriteLine(b);
+            }
+        }
+        
+        if (liked.Count > 0)
+        {
+            Console.WriteLine("\nAnd here are the books they liked:");
+            foreach (var b in liked)
+            {
+                Console.WriteLine(b);
+            }
         }
     }
 }
