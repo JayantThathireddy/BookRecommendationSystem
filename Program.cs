@@ -255,12 +255,12 @@ class Program
         var selectedBook = books[bookNumber - 1];
 
         Console.WriteLine("\nRating Scale:");
-        Console.WriteLine("-5 : 😡 Hated it!");
-        Console.WriteLine("-3 : 🙁 Didn't like it");
-        Console.WriteLine(" 0 : 🤷 Haven't read it");
-        Console.WriteLine(" 1 : 😐 Ok – neither hot nor cold");
-        Console.WriteLine(" 3 : 🙂 Liked it!");
-        Console.WriteLine(" 5 : 🤩 Really liked it!");
+        Console.WriteLine("-5 :  Hated it!");
+        Console.WriteLine("-3 :  Didn't like it");
+        Console.WriteLine(" 0 :  Haven't read it");
+        Console.WriteLine(" 1 :  Ok – neither hot nor cold");
+        Console.WriteLine(" 3 :  Liked it!");
+        Console.WriteLine(" 5 :  Really liked it!");
 
         Console.Write("\nEnter your rating (-5, -3, 0, 1, 3, 5): ");
         string ratingInput = Console.ReadLine()?.Trim() ?? "";
