@@ -17,12 +17,12 @@ public class Rating
     {
         return score switch
         {
-            -5 => "😡 Hated it!",
-            -3 => "🙁 Didn't like it",
-            0 => "🤷 Haven't read it",
-            1 => "😐 Ok – neither hot nor cold",
-            3 => "🙂 Liked it!",
-            5 => "🤩 Really liked it!",
+            -5 => " Hated it!",
+            -3 => " Didn't like it",
+            0 => " Haven't read it",
+            1 => " Ok – neither hot nor cold",
+            3 => " Liked it!",
+            5 => " Really liked it!",
             _ => "Unknown"
         };
     }
