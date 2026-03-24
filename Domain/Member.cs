@@ -1,4 +1,4 @@
-namespace ITCS_3112_Lab_2_Recommendation;
+namespace ITCS_3112_Lab_2_Recommendation.Domain;
 
 public class Member
 {
