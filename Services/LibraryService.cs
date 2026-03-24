@@ -1,7 +1,7 @@
 using ITCS_3112_Lab_2_Recommendation.Contracts;
 using ITCS_3112_Lab_2_Recommendation.Repositories;
 
-namespace ITCS_3112_Lab_2_Recommendation.services;
+namespace ITCS_3112_Lab_2_Recommendation.Services;
 
 public class LibraryService : ILibraryService
 {
@@ -23,9 +23,9 @@ public class LibraryService : ILibraryService
         _ratingRepository.LoadRatingsFromFile(ratingsFile, _memberRepository, _bookRepository);
     }
 
-    public bool Login(string memberName)
+    public bool Login(string accountId)
     {
-        var member = _memberRepository.GetMemberByName(memberName);
+        var member = _memberRepository.GetMemberByAccount(accountId);
         if (member != null)
         {
             _currentMember = member;
@@ -51,9 +51,6 @@ public class LibraryService : ILibraryService
 
     public Member? AddMember(string name)
     {
-        if (_memberRepository.GetMemberByName(name) != null)
-            return null;
-
         var member = new Member(name);
         _memberRepository.AddMember(member);
         return member;
@@ -106,11 +103,14 @@ public class LibraryService : ILibraryService
 
         var similarities = new Dictionary<string, int>();
 
+        // Calculate finding the most similar member by checking their dot product
         foreach (var otherMember in allMembers)
         {
             if (otherMember.Account == currentMemberAccount) continue;
 
             int dotProduct = 0;
+            // The dot-product similarity algorithm takes the products of corresponding ratings 
+            // for two members. Highest overall value indicates maximum similarly.
             foreach (var book in allBooks)
             {
                 int myRating = _ratingRepository.GetRating(currentMemberAccount, book.ISBN);
@@ -121,6 +121,7 @@ public class LibraryService : ILibraryService
             similarities[otherMember.Account] = dotProduct;
         }
 
+        // Get the single most similar member to base our recommendations on
         var mostSimilarMember = similarities.OrderByDescending(kvp => kvp.Value).FirstOrDefault();
 
         if (mostSimilarMember.Key == null) return new List<Book>();
@@ -134,6 +135,7 @@ public class LibraryService : ILibraryService
         foreach (var rating in theirRatings)
         {
             int myRating = _ratingRepository.GetRating(currentMemberAccount, rating.BookISBN);
+            // Ensure we do not recommend a book the user has already rated (read)
             if (myRating == 0)
             {
                 var book = _bookRepository.GetBookByISBN(rating.BookISBN);

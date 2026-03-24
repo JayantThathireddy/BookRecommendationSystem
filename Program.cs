@@ -1,4 +1,4 @@
-﻿using ITCS_3112_Lab_2_Recommendation.services;
+﻿using ITCS_3112_Lab_2_Recommendation.Services;
 
 namespace ITCS_3112_Lab_2_Recommendation;
 
@@ -162,22 +162,22 @@ class Program
 
     static void LoginMember(ILibraryService service)
     {
-        Console.Write("\nEnter your name: ");
-        string name = Console.ReadLine()?.Trim() ?? "";
+        Console.Write("\nEnter your Account ID: ");
+        string account = Console.ReadLine()?.Trim() ?? "";
 
-        if (string.IsNullOrEmpty(name))
+        if (string.IsNullOrEmpty(account))
         {
-            Console.WriteLine("✗ Name cannot be empty.");
+            Console.WriteLine("✗ Account ID cannot be empty.");
             return;
         }
 
-        if (service.Login(name))
+        if (service.Login(account))
         {
-            Console.WriteLine($"\n✓ Welcome back, {name}!");
+            Console.WriteLine($"\n✓ Welcome back, {service.GetCurrentMember()?.Name}!");
         }
         else
         {
-            Console.WriteLine("\n✗ Member not found. Please add yourself as a new member first.");
+            Console.WriteLine("\n✗ Member not found. Please check your Account ID or add yourself as a new member.");
         }
     }
 

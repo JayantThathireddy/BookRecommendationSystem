@@ -9,6 +9,7 @@ public class RatingRepository : IRatingRepository
     public void LoadRatingsFromFile(string filename, IMemberRepository memberRepository, IBookRepository bookRepository)
     {
         string[] lines = File.ReadAllLines(filename);
+        // Process every two lines: first line is the name, second line is their ratings
         for (int i = 0; i < lines.Length; i += 2)
         {
             if (i + 1 >= lines.Length) break;
@@ -16,12 +17,14 @@ public class RatingRepository : IRatingRepository
             string memberName = lines[i].Trim();
             if (string.IsNullOrWhiteSpace(memberName)) continue;
 
+            // Creating member adds them to the member repository
             Member member = new Member(memberName);
             memberRepository.AddMember(member);
 
             string ratingsLine = lines[i + 1].Trim();
             string[] ratingValues = ratingsLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
+            // The position of the rating matches the position of the book in the BookRepository
             for (int bookIndex = 0; bookIndex < ratingValues.Length; bookIndex++)
             {
                 if (int.TryParse(ratingValues[bookIndex], out int score))

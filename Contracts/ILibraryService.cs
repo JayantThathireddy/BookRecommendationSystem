@@ -3,7 +3,7 @@ namespace ITCS_3112_Lab_2_Recommendation;
 public interface ILibraryService
 {
     void LoadData(string booksFile, string ratingsFile);
-    bool Login(string memberName);
+    bool Login(string accountId);
     void Logout();
     bool IsLoggedIn();
     Member? GetCurrentMember();
