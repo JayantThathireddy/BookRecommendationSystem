@@ -1,6 +1,7 @@
 ﻿using ITCS_3112_Lab_2_Recommendation.Services;
 using ITCS_3112_Lab_2_Recommendation.Contracts;
 using ITCS_3112_Lab_2_Recommendation.Domain;
+using ITCS_3112_Lab_2_Recommendation.Repositories;
 
 namespace ITCS_3112_Lab_2_Recommendation;
 
@@ -8,7 +9,10 @@ class Program
 {
     static void Main(string[] args)
     {
-        ILibraryService libraryService = new LibraryService();
+        IBookRepository bookRepo = new BookRepository();
+        IMemberRepository memberRepo = new MemberRepository();
+        IRatingRepository ratingRepo = new RatingRepository();
+        ILibraryService libraryService = new LibraryService(bookRepo, memberRepo, ratingRepo);
 
         Console.WriteLine("Welcome to the Book Recommendation Program.\n");
 

@@ -11,11 +11,11 @@ public class LibraryService : ILibraryService
     private readonly IRatingRepository _ratingRepository;
     private Member? _currentMember;
 
-    public LibraryService()
+    public LibraryService(IBookRepository bookRepository, IMemberRepository memberRepository, IRatingRepository ratingRepository)
     {
-        _bookRepository = new BookRepository();
-        _memberRepository = new MemberRepository();
-        _ratingRepository = new RatingRepository();
+        _bookRepository = bookRepository;
+        _memberRepository = memberRepository;
+        _ratingRepository = ratingRepository;
     }
 
     public void LoadData(string booksFile, string ratingsFile)
