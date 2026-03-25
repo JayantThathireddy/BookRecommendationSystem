@@ -12,11 +12,19 @@ class Program
 
         Console.WriteLine("Welcome to the Book Recommendation Program.\n");
 
-        Console.Write("Enter books file: ");
+        Console.Write("Enter books file (default: Data\\books.txt): ");
         string booksFile = Console.ReadLine()?.Trim() ?? "";
+        if (string.IsNullOrEmpty(booksFile))
+        {
+            booksFile = "Data\\books.txt";
+        }
 
-        Console.Write("Enter rating file: ");
+        Console.Write("Enter rating file (default: Data\\ratings.txt): ");
         string ratingsFile = Console.ReadLine()?.Trim() ?? "";
+        if (string.IsNullOrEmpty(ratingsFile))
+        {
+            ratingsFile = "Data\\ratings.txt";
+        }
 
         try
         {
